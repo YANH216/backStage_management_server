@@ -2,7 +2,7 @@ const express = require('express');
 
 const mongoose = require('mongoose');
 
-const port = 3001
+const port = 5000
 
 const app = express()
 
@@ -35,11 +35,23 @@ const { jwtSecretKey } = require('./config/tokenConf')
 app.use(expressJwt({
   secret: jwtSecretKey,
   algorithms: ['HS256']
-}).unless({ path: [/^\/manage\/login/] }))
+}).unless({ path: [/^\/login/] }))
 
-// 导入路由模块
+// 导入用户路由模块
 const userRouter = require('./routers/user')
-app.use('/manage', userRouter)
+app.use(userRouter)
+
+// 导入分类路由模块
+const categoryRouter = require('./routers/category')
+app.use(categoryRouter)
+
+// 导入产品路由模块
+const productRouter = require('./routers/product')
+app.use(productRouter)
+
+// 导入角色路由模块
+const roleRouter = require('./routers/role')
+app.use(roleRouter)
 
 
 // 错误级别中间件
@@ -59,7 +71,7 @@ app.use((err, req, res, next) => {
 mongoose.connect('mongodb://localhost/server_db2').then(() => {
   console.log('链接数据库成功！')
   app.listen(port, () => {
-    console.log('server running at 127.0.0.1:3001')
+    console.log(`server running at 127.0.0.1:${port}`)
   })
 }).catch(err => {
   console.log('链接数据库失败', err)

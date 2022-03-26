@@ -24,7 +24,10 @@ userModel.findOne({ username: 'admin' }).then(user => {
   if (!user) {
     userModel.create({ 
       username: 'admin', 
-      password: bcrypt.hashSync('admin', 10)
+      password: bcrypt.hashSync('admin', 10),
+      phone: '11223344556',
+      email: '11223344556@outlook.com',
+      role_id: '5e175a134bce5e36d48fb4db'
     }).then(user => {
       console.log('初始化用户: 用户名: admin 密码： admin')
     })

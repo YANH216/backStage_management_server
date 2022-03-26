@@ -9,7 +9,6 @@ const {
   jwtSecretKey, 
   expiresIn 
 } = require('../config/tokenConf')
-const router = require('../routers/user')
 
 // 登录
 exports.login = (req, res) => {
@@ -25,13 +24,14 @@ exports.login = (req, res) => {
           const newUser = { ...user, password: '' }
           // 对用户信息进行加密,生成token字符串
           const tokenStr = jwt.sign(newUser, jwtSecretKey, { expiresIn })
+
           // 查看该用户是否有角色属性
           if (user.role_id) {
             roleModel.findOne({ _id: user.role_id })
               .then(role => {
                 user._doc.role = role
                 console.log('role user', user)
-                res.send({ status: 0, data: user })
+                res.send({ status: 0, data: user, token: 'Bearer '+ tokenStr })
               })
           } else {
             user._doc.role = { menu: [] }
@@ -40,7 +40,7 @@ exports.login = (req, res) => {
               status: 0,
               msg: '登录成功',
               data: user,
-              token: 'Bearer ' + tokenStr,
+              token: 'Bearer '+ tokenStr
             })
           }
         } else {  // 登录失败
@@ -55,7 +55,7 @@ exports.login = (req, res) => {
 }
 
 // 添加用户
-exports.add = (req, res) => {
+exports.addUser = (req, res) => {
   // 读取请求参数数据
   const { username, password } = req.body
   // 处理: 判断用户是否存在,如果存在,返回错误信息,如果不存在,保存
@@ -81,3 +81,44 @@ exports.add = (req, res) => {
       res.cc('添加用户异常,请重新尝试')
     })
 }
+
+// 更新用户
+exports.updateUser = (req, res) => {
+  const user = req.body
+  userModel.findOneAndUpdate({_id: user._id}, user)
+    .then(preUser => {
+      // 将请求的新的user信息合并到找到的preUser对象上，实现更新
+      const data = Object.assign(preUser, user)
+      // 返回数据
+      res.send({ status: 0, data })
+    })
+    .catch(err => {
+      console.error('更新用户异常', err)
+      res.cc('更新用户异常，请重新尝试')
+    })
+}
+
+// 删除用户
+exports.deleteUser = (req, res) => {
+  const { userId } = req.body
+  userModel.deleteOne({ _id: userId })
+    .then(doc => {
+      res.send({ status: 0 })
+    })
+}
+
+
+// 获取所有用户列表
+exports.getAllUser = (req, res) => {
+  userModel.find({ username: {'$ne': 'admin'} })
+    .then(users => {
+      roleModel.find().then(roles => {
+        res.send({ status: 0, data: { users, roles } })
+      })
+    })
+    .catch(err => {
+      console.error('获取用户列表异常', error)
+      res.cc('获取用户列表异常，请重新尝试')
+    })
+}
+

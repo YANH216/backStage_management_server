@@ -5,7 +5,10 @@ const router = express.Router()
 
 const { 
   login,
-  add,
+  addUser,
+  updateUser,
+  deleteUser,
+  getAllUser,
 }  = require('../router_handler/user')
 
 
@@ -13,14 +16,25 @@ const {
 const expressJoi = require('@escook/express-joi')
 
 const {
-  login_schema,
-  add_schema,
+  user_schema
 } = require('../schema/user')
 
-// 登录
-router.post('/login', expressJoi(login_schema), login)
+// 定义请求基本路径
+const basePath = '/manage/user'
 
-// 添加用户/用户注册
-router.post('/user/add', expressJoi(add_schema), add)
+// 登录
+router.post('/login', expressJoi(user_schema), login)
+
+// 添加用户
+router.post(`${basePath}/add`, expressJoi(user_schema), addUser)
+
+// 更新用户
+router.post(`${basePath}/update`, updateUser)
+
+// 删除用户
+router.post(`${basePath}/delete`, deleteUser)
+
+// 获取所有用户列表
+router.get(`${basePath}/list`, getAllUser)
 
 module.exports = router
