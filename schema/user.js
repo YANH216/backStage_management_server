@@ -2,21 +2,12 @@
 const Joi = require('joi')
 
 // 定义用户信息数据的验证规则
-const username = Joi.string().alphanum().min(1).max(10).required()
-const password = Joi.string().required()
-const phone = Joi.string()
+const username = Joi.string().alphanum().min(4).max(10).required()
+const password = Joi.string().required().min(4).max(12).required()
+const phone = Joi.string().min(11).max(11)
 const email = Joi.string().email()
 
-exports.login_schema = {
-  body: {
-    username,
-    password,
-    phone,
-    email,
-  }
-}
-
-exports.add_schema = {
+exports.user_schema = {
   body: {
     username,
     password,
